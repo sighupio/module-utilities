@@ -1,0 +1,11 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+# One control-plane node and two workers, matching the SD module test convention.
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker

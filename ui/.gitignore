@@ -1,0 +1,6 @@
+# E2E test temporary files
+kubeconfig-e2e
+*.yml.tmp
+
+# Rendered manifests produced by the CI validate pipeline
+headlamp.yml

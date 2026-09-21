@@ -1,0 +1,49 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+# Points Headlamp at Capsule Proxy instead of the API server, and mounts a token+CA bundle
+# so it trusts Capsule Proxy's TLS. Pomerium (in front, via the Ingress) injects the user's
+# OIDC id_token as `Authorization: Bearer ...`; Headlamp forwards it unchanged to Capsule
+# Proxy, which filters every response by the user's Tenant.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headlamp
+  namespace: headlamp
+spec:
+  template:
+    spec:
+      containers:
+        - name: headlamp
+          env:
+            - name: KUBERNETES_SERVICE_HOST
+              value: capsule-proxy.capsule-system.svc
+            - name: KUBERNETES_SERVICE_PORT
+              value: "9001"
+          args:
+            - "-in-cluster"
+            - "-in-cluster-context-name=main"
+            - "-plugins-dir=/headlamp/plugins"
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: token-ca
+      volumes:
+        - name: token-ca
+          projected:
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 86400
+                  path: token
+              # Capsule Proxy CA + dev CA. Created by `mise run sync-capsule-ca`.
+              - secret:
+                  name: headlamp-ca-bundle
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace

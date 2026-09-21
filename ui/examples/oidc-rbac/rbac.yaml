@@ -1,0 +1,138 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+# RBAC for the "SSO + OIDC pass-through, NO Capsule" model (see README).
+#
+# WHO is granted: a real OIDC group carried in the user's `groups` claim (from Dex). This
+# is NOT `capsule.clastix.io` — that group only exists when Capsule Proxy is in the path.
+# Replace `sd-ui-viewers` below with a group your Dex connector actually emits (e.g. an LDAP
+# group CN), then everyone in that group gets the access defined here when they log in via
+# Pomerium SSO.
+#
+# WHAT is granted: cluster-wide READ. Without Capsule Proxy there is no per-namespace
+# filtering primitive in vanilla RBAC — a cluster-wide `list` either sees everything or is
+# denied. So this bundle is an OPS/SRE-scope grant: every bound user sees the whole cluster.
+# It is NOT multi-tenant isolation. For per-tenant isolation, use the oidc-capsule overlay.
+#
+# The verbs/resources mirror what the SD plugins actually call; the cluster-wide `list`
+# verbs are the only real addition over the Capsule variant (Capsule Proxy used to make
+# them unnecessary by transparently filtering).
+
+---
+# General cluster-wide read for the plugins that do cluster-scoped `useList()`
+# (sd-core landing, sd-events, sd-logs, sd-policy).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sd-ui-reader
+rules:
+  # Core resources listed/watched by the plugins.
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - nodes
+      - pods
+      - services
+      - events
+      - endpoints
+      - persistentvolumeclaims
+      - configmaps
+    verbs: ["get", "list", "watch"]
+  # Node CPU/memory tiles on the sd-core landing page (Node.useMetrics -> metrics.k8s.io).
+  # Served by metrics-server; without this the tiles render empty.
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  # Workloads shown by sd-core / sd-logs / sd-events.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "daemonsets", "statefulsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  # Ingress links surfaced by sd-core.
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  # Kyverno PolicyReports (sd-policy).
+  - apiGroups: ["wgpolicyk8s.io"]
+    resources: ["policyreports", "clusterpolicyreports"]
+    verbs: ["get", "list"]
+  # Gatekeeper constraints (sd-policy).
+  - apiGroups: ["constraints.gatekeeper.sh"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+  # Velero backups/schedules/restores (sd-backups).
+  - apiGroups: ["velero.io"]
+    resources: ["backups", "schedules", "restores"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sd-ui-reader
+subjects:
+  - kind: Group
+    name: sd-ui-viewers # <-- replace with a real Dex/LDAP group from the `groups` claim
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sd-ui-reader
+---
+# Service-proxy access to the observability backends (sd-logs, sd-certificates, sd-events).
+# services/proxy is never covered by the built-in `view` role and must be granted explicitly;
+# resourceNames must include the port-suffixed form.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sd-ui-service-proxy
+rules:
+  - apiGroups: [""]
+    resources: ["services/proxy"]
+    resourceNames:
+      - "loki-stack"
+      - "loki-stack:3100"
+      - "prometheus-k8s"
+      - "prometheus-k8s:9090"
+      - "opensearch-cluster-master"
+      - "opensearch-cluster-master:9200"
+    verbs: ["get", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sd-ui-service-proxy
+subjects:
+  - kind: Group
+    name: sd-ui-viewers # <-- replace with a real Dex/LDAP group from the `groups` claim
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sd-ui-service-proxy
+---
+# sd-core reads distribution metadata from the furyctl secrets. `view` excludes secrets, so
+# this is a narrow, name-scoped Role rather than a blanket secrets grant.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sd-ui-furyctl-secrets-reader
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["furyctl-kfd", "furyctl-config"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sd-ui-furyctl-secrets-reader
+  namespace: kube-system
+subjects:
+  - kind: Group
+    name: sd-ui-viewers # <-- replace with a real Dex/LDAP group from the `groups` claim
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sd-ui-furyctl-secrets-reader

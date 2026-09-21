@@ -1,0 +1,30 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: headlamp
+
+# Identity labels stamped on every resource. includeSelectors is left false (the default)
+# so the immutable Deployment/Service selectors — already set in the manifests — are never
+# mutated. Version is set per-resource, never here, for the same reason.
+labels:
+  - pairs:
+      app.kubernetes.io/name: headlamp
+      app.kubernetes.io/instance: headlamp
+    includeSelectors: false
+
+# The SD Headlamp image (Headlamp base + SD plugins, built from this repo's Dockerfile).
+# Override newName/newTag in an overlay or with `kustomize edit set image` to pin a build.
+images:
+  - name: registry.sighup.io/fury/sd-ui
+    newTag: latest
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - service.yaml
+  - deployment.yaml

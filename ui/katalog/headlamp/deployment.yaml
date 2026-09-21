@@ -1,0 +1,62 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headlamp
+  namespace: headlamp
+  labels:
+    app.kubernetes.io/version: "0.40.1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: headlamp
+      app.kubernetes.io/instance: headlamp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: headlamp
+        app.kubernetes.io/instance: headlamp
+    spec:
+      serviceAccountName: headlamp
+      automountServiceAccountToken: true
+      securityContext: {}
+      containers:
+        - name: headlamp
+          # Satisfies the Kubernetes "restricted" Pod Security Standard / Kyverno
+          # restricted policies enforced on SD clusters.
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            runAsGroup: 101
+            runAsNonRoot: true
+            runAsUser: 100
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          # Overridable via the `images:` transformer in kustomization.yaml.
+          image: registry.sighup.io/fury/sd-ui:latest
+          imagePullPolicy: IfNotPresent
+          # Base form: Headlamp talks to the in-cluster API server using its own
+          # ServiceAccount token. Overlays patch this to front Capsule Proxy / add OIDC.
+          args:
+            - "-in-cluster"
+            - "-plugins-dir=/headlamp/plugins"
+          ports:
+            - name: http
+              containerPort: 4466
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: http
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: http
+          resources: {}

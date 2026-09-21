@@ -1,0 +1,32 @@
+# Copyright (c) 2017-present SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+# Plain TLS ingress routed straight to the Headlamp Service. There is no ingress-level auth —
+# access to the UI is gated by Headlamp's own Kubernetes token login (see README).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: headlamp
+  namespace: headlamp
+  annotations:
+    # TLS issuer — `kind-ca` matches the SD dev environment; change for production.
+    cert-manager.io/cluster-issuer: kind-ca
+spec:
+  ingressClassName: nginx
+  rules:
+    # Replace with your real hostname before applying.
+    - host: headlamp.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: headlamp
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - headlamp.example.com
+      secretName: headlamp-tls
