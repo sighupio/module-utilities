@@ -527,7 +527,7 @@ steps:
     depends_on:
       - clone
     commands:
-      - tar -zcvf __MODULE_NAME__-${DRONE_TAG}.tar.gz katalog/ LICENSE README.md
+      - tar -zcvf module-utilities-${DRONE_TAG}.tar.gz katalog/ LICENSE README.md
     when:
       ref:
         include:
@@ -556,7 +556,7 @@ steps:
         from_secret: github_token
       file_exists: overwrite
       files:
-        - __MODULE_NAME__-${DRONE_TAG}.tar.gz
+        - module-utilities-${DRONE_TAG}.tar.gz
       prerelease: true
       overwrite: true
       title: "Preview ${DRONE_TAG}"
@@ -580,7 +580,7 @@ steps:
         from_secret: github_token
       file_exists: overwrite
       files:
-        - __MODULE_NAME__-${DRONE_TAG}.tar.gz
+        - module-utilities-${DRONE_TAG}.tar.gz
       prerelease: false
       overwrite: true
       title: "Release ${DRONE_TAG}"
