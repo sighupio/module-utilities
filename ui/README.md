@@ -10,7 +10,7 @@
 <!-- markdownlint-enable MD033 -->
 
 ![Release](https://img.shields.io/badge/Latest%20Release-__MODULE_VERSION__-blue)
-![License](https://img.shields.io/github/license/__MODULE_REPO_SLUG__?label=License)
+![License](https://img.shields.io/github/license/sighupio/module-utilities?label=License)
 ![Slack](https://img.shields.io/badge/slack-@kubernetes/fury-yellow.svg?logo=slack&label=Slack)
 
 <!-- <SD-DOCS> -->
@@ -83,7 +83,7 @@ To install SD from scratch, follow the [Getting started][getting-started] guide.
 [getting-started]: https://docs.sighup.io/docs/getting-started/
 [schema-reference-onprem]: https://docs.sighup.io/docs/reference/onpremises
 [schema-reference-immutable]: https://docs.sighup.io/docs/reference/Immutable
-[compatibility-matrix]: __MODULE_REPO_URL__/blob/main/docs/COMPATIBILITY_MATRIX.md
+[compatibility-matrix]: https://github.com/sighupio/module-utilities/blob/main/docs/COMPATIBILITY_MATRIX.md
 
 <!-- </SD-DOCS> -->
 
@@ -95,7 +95,7 @@ Before contributing, please read first the [Contributing Guidelines](https://git
 
 ### Reporting Issues
 
-In case you experience any problem with the module, please [open a new issue](__MODULE_REPO_URL__/issues/new/choose).
+In case you experience any problem with the module, please [open a new issue](https://github.com/sighupio/module-utilities/issues/new/choose).
 
 ## License
 

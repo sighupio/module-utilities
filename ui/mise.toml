@@ -6,7 +6,7 @@
 # Default values for local development
 KUBE_VERSION = "1.36.4"
 DRONE_BUILD_NUMBER = "9999"
-DRONE_REPO_NAME = "__MODULE_NAME__"
+DRONE_REPO_NAME = "module-utilities"
 
 [tools]
 bats = "1.14.0"
