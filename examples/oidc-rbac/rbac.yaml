@@ -5,13 +5,13 @@
 # RBAC for the "SSO + OIDC pass-through, NO Capsule" model (see README).
 #
 # WHO is granted: a real OIDC group carried in the user's `groups` claim (from Dex). This
-# is NOT `capsule.clastix.io` — that group only exists when Capsule Proxy is in the path.
+# is NOT `capsule.clastix.io` - that group only exists when Capsule Proxy is in the path.
 # Replace `sd-ui-viewers` below with a group your Dex connector actually emits (e.g. an LDAP
 # group CN), then everyone in that group gets the access defined here when they log in via
 # Pomerium SSO.
 #
 # WHAT is granted: cluster-wide READ. Without Capsule Proxy there is no per-namespace
-# filtering primitive in vanilla RBAC — a cluster-wide `list` either sees everything or is
+# filtering primitive in vanilla RBAC - a cluster-wide `list` either sees everything or is
 # denied. So this bundle is an OPS/SRE-scope grant: every bound user sees the whole cluster.
 # It is NOT multi-tenant isolation. For per-tenant isolation, use the oidc-capsule overlay.
 #

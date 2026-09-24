@@ -3,20 +3,20 @@
 <!-- <SD-DOCS> -->
 
 [Headlamp](https://headlamp.dev) is a web UI for Kubernetes. This package deploys the
-**SIGHUP Distribution build of Headlamp** — the upstream Headlamp server bundled with the
-SD plugins (alerts, certificates, events, logs, backups, policy, …) — into an SD cluster.
+**SIGHUP Distribution build of Headlamp** - the upstream Headlamp server bundled with the
+SD plugins (alerts, certificates, events, logs, backups, policy, …) - into an SD cluster.
 
 This `katalog/headlamp` package is intentionally **auth-agnostic**: it ships only the
 Namespace, ServiceAccount, Service and Deployment. It deliberately does **not** include an
 Ingress, a `ClusterRoleBinding`, or any front-door authentication. How users reach and
-authenticate to the UI is an overlay concern — see the ready-made overlays under
+authenticate to the UI is an overlay concern - see the ready-made overlays under
 [`examples/`](../../examples):
 
-- [`examples/token-auth`](../../examples/token-auth) — a `ClusterRoleBinding` granting the
+- [`examples/token-auth`](../../examples/token-auth) - a `ClusterRoleBinding` granting the
   Headlamp ServiceAccount cluster access, over a plain TLS ingress. Headlamp talks directly
   to the API server as a single identity; access is gated by Headlamp's own Kubernetes token
   login.
-- [`examples/oidc-capsule`](../../examples/oidc-capsule) — Headlamp behind Pomerium SSO,
+- [`examples/oidc-capsule`](../../examples/oidc-capsule) - Headlamp behind Pomerium SSO,
   with requests proxied to Capsule Proxy for per-tenant filtering (the pattern used by the
   SD dev environment).
 
@@ -47,7 +47,7 @@ The base Deployment runs Headlamp with:
 ```
 
 so it authenticates to the in-cluster API server with its own ServiceAccount token. The
-ServiceAccount has **no** RBAC bound by this package — grant access in an overlay (e.g. a
+ServiceAccount has **no** RBAC bound by this package - grant access in an overlay (e.g. a
 `ClusterRoleBinding`) appropriate to your access model.
 
 - Namespace: `headlamp`
@@ -74,4 +74,4 @@ kustomize build katalog/headlamp
 
 ## License
 
-This package is governed by a BSD-style license — see the repository for details.
+This package is governed by a BSD-style license - see the repository for details.

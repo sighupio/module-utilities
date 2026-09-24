@@ -2,22 +2,15 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# Lives in the `pomerium` namespace and routes to the Pomerium service, NOT to Headlamp
-# directly. Pomerium authenticates the user (OIDC/Dex) and injects the bearer token before
-# proxying to Headlamp. Requires the matching Pomerium route (see README).
+# Plain TLS ingress routed straight to the Headlamp Service. There is no ingress-level auth -
+# access to the UI is gated by Headlamp's own Kubernetes token login (see README).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: headlamp
-  namespace: pomerium
-  labels:
-    cluster.kfd.sighup.io/useful-link.enable: "true"
+  namespace: headlamp
   annotations:
-    cluster.kfd.sighup.io/useful-link.url: https://headlamp.example.com
-    cluster.kfd.sighup.io/useful-link.name: "Headlamp"
-    forecastle.stakater.com/expose: "true"
-    forecastle.stakater.com/appName: "Headlamp"
-    # TLS issuer — `kind-ca` matches the SD dev environment; change for production.
+    # TLS issuer - `kind-ca` matches the SD dev environment; change for production.
     cert-manager.io/cluster-issuer: kind-ca
 spec:
   ingressClassName: nginx
@@ -30,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: pomerium
+                name: headlamp
                 port:
                   number: 80
   tls:

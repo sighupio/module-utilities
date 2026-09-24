@@ -6,7 +6,7 @@
 # directly. Pomerium authenticates the user (OIDC/Dex) and injects the bearer token before
 # proxying to Headlamp. Requires the matching Pomerium route (see README).
 #
-# Identical to the oidc-capsule ingress — the front door is the same; only what sits behind
+# Identical to the oidc-capsule ingress - the front door is the same; only what sits behind
 # Headlamp differs (real API server here, Capsule Proxy there).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -20,7 +20,7 @@ metadata:
     cluster.kfd.sighup.io/useful-link.name: "Headlamp"
     forecastle.stakater.com/expose: "true"
     forecastle.stakater.com/appName: "Headlamp"
-    # TLS issuer — `kind-ca` matches the SD dev environment; change for production.
+    # TLS issuer - `kind-ca` matches the SD dev environment; change for production.
     cert-manager.io/cluster-issuer: kind-ca
 spec:
   ingressClassName: nginx
