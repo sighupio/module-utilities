@@ -1,6 +1,6 @@
-# UI Core Module Release vTBD
+# Utilities Core Module Release vTBD
 
-Welcome to the latest release of the `ui` module of [`SIGHUP Distribution`](https://github.com/sighupio/fury-distribution)
+Welcome to the latest release of the `utilities` module of [`SIGHUP Distribution`](https://github.com/sighupio/fury-distribution)
 maintained by team SIGHUP.
 
 <!-- One short paragraph: what this release is about. -->

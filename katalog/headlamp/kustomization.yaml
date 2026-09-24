@@ -9,7 +9,7 @@ kind: Kustomization
 namespace: headlamp
 
 # Identity labels stamped on every resource. includeSelectors is left false (the default)
-# so the immutable Deployment/Service selectors — already set in the manifests — are never
+# so the immutable Deployment/Service selectors - already set in the manifests - are never
 # mutated. Version is set per-resource, never here, for the same reason.
 labels:
   - pairs:
