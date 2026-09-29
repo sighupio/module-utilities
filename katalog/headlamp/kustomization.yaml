@@ -17,11 +17,12 @@ labels:
       app.kubernetes.io/instance: headlamp
     includeSelectors: false
 
-# The SD Headlamp image (Headlamp base + SD plugins, built from this repo's Dockerfile).
-# Override newName/newTag in an overlay or with `kustomize edit set image` to pin a build.
+# The SD Headlamp image (Headlamp base + SD plugins, built from the sd-ui repository's Dockerfile).
+# Pinned to a published build: keep newTag in sync with the image tag in deployment.yaml.
+# Override newName/newTag in an overlay or with `kustomize edit set image` to use another build.
 images:
   - name: registry.sighup.io/fury/sd-ui
-    newTag: latest
+    newTag: v0.1.1
 
 resources:
   - namespace.yaml

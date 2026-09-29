@@ -31,7 +31,8 @@ authenticate to the UI is an overlay concern - see the ready-made overlays under
 - Built from the SD-UI source repository's `Dockerfile` (Headlamp base image + pre-built
   plugin `dist/main.js` bundles): https://github.com/sighupio/new-sd-ui
 
-Pin a specific build by editing the `images:` transformer in `kustomization.yaml`, or:
+Each module release pins a published build (see [MAINTENANCE.md](MAINTENANCE.md)). To use a
+different build, override the `images:` transformer in your overlay, or:
 
 ```shell
 kustomize edit set image registry.sighup.io/fury/sd-ui=registry.sighup.io/fury/sd-ui:<tag>

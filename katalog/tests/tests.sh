@@ -50,7 +50,7 @@ set -o pipefail
     rendered=$(echo "$rendered" | sed "s/headlamp.example.com/${HEADLAMP_HOST}/g")
   fi
   if [ -n "${HEADLAMP_IMAGE}" ]; then
-    rendered=$(echo "$rendered" | sed "s#registry.sighup.io/fury/sd-ui:latest#${HEADLAMP_IMAGE}#g")
+    rendered=$(echo "$rendered" | sed "s#registry.sighup.io/fury/sd-ui:[^[:space:]\"]*#${HEADLAMP_IMAGE}#g")
   fi
   echo "$rendered" >&2
   echo "$rendered" | kubectl apply -f - --server-side 2>&3
