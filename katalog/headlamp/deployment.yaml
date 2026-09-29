@@ -40,7 +40,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
           # Overridable via the `images:` transformer in kustomization.yaml.
-          image: registry.sighup.io/fury/sd-ui:latest
+          image: registry.sighup.io/fury/sd-ui:v0.1.1
           imagePullPolicy: IfNotPresent
           # Base form: Headlamp talks to the in-cluster API server using its own
           # ServiceAccount token. Overlays patch this to front Capsule Proxy / add OIDC.
