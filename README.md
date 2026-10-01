@@ -15,70 +15,78 @@
 
 <!-- <SD-DOCS> -->
 
-**Utilities Module** is a core module of [SIGHUP Distribution (SD)][kfd-repo]. It groups general purpose tools that help you operate and use the cluster.
+**Utilities Module** is a core module and provides general purpose tools to operate and use the clusters of [SIGHUP Distribution (SD)][kfd-repo]. Today it ships a web UI for Kubernetes based on the [Headlamp][headlamp-repo] project, extended with plugins for the SD modules.
 
 If you are new to SD please refer to the [official documentation][kfd-docs] on how to get started with SD.
 
 ## Overview
 
-**Utilities Module** has packages for general purposes. Each package is independent and can be enabled on its own.
-
-The first package is the SD build of [Headlamp][headlamp-repo]: the upstream Headlamp server with the SD plugins that show data specific to the distribution (cluster overview, Prometheus alerts, certificate expiry, Kubernetes events, logs, Velero backups and policy violations). All its components are deployed in the `headlamp` namespace.
+The web UI gives you a single place to see the state of the cluster and of the SD modules: cluster overview, Prometheus alerts, certificate expiry, Kubernetes events, logs from Loki or OpenSearch, Velero backups, and Kyverno or Gatekeeper policy violations. Users log in with a Kubernetes token or with SSO through Pomerium, and see what their Kubernetes RBAC allows. All its components run in the `headlamp` namespace.
 
 ## Packages
 
 The following packages are included in Utilities Module:
 
-| Package | Version | Description |
-| --- | --- | --- |
-| [Headlamp](katalog/headlamp) | `0.40.1` | Web UI for Kubernetes, bundled with the SD distribution plugins. |
+| Package                      | Version  | Description                                                     |
+| ---------------------------- | -------- | --------------------------------------------------------------- |
+| [headlamp](katalog/headlamp) | `0.40.1` | Web UI for Kubernetes, extended with plugins for the SD modules |
 
 Click on each package to see its full documentation.
 
-### Headlamp
-
-The `headlamp` package contains the Namespace, the ServiceAccount, the Service and the Deployment, and works with any authentication model. You choose how the users reach the UI and log in with an overlay. The [`examples/`](examples) directory has three ready to use overlays:
-
-| Overlay                                          | Entry point       | Identity seen by the API server         | SD `utilities.headlamp.type`     |
-| ------------------------------------------------ | ----------------- | --------------------------------------- | -------------------------------- |
-| [token-auth](examples/token-auth)                | Plain TLS ingress | The token supplied by the user          | `token-auth`                     |
-| [oidc-capsule](examples/oidc-capsule)            | Pomerium SSO      | The end user, filtered by Capsule Proxy | apply the example with kustomize |
-| [oidc-rbac](examples/oidc-rbac)                  | Pomerium SSO      | The end user, via OIDC group RBAC       | `sso`                            |
-
-From SD v1.36.0, on OnPremises and Immutable clusters, furyctl renders the `token-auth` and `sso` models from `spec.distribution.modules.utilities.headlamp`. Each example README describes the differences between the example and the version that the distribution renders.
-
 ## Compatibility
 
-| Kubernetes Version |   Compatibility    | Notes            |
-| ------------------ | :----------------: | ---------------- |
-| `1.33.x`           | :white_check_mark: | No known issues. |
-| `1.34.x`           | :white_check_mark: | No known issues. |
-| `1.35.x`           | :white_check_mark: | No known issues. |
-| `1.36.x`           | :white_check_mark: | No known issues. |
+| Kubernetes Version |   Compatibility    | Notes           |
+| ------------------ | :----------------: | --------------- |
+| `1.33.x`           | :white_check_mark: | No known issues |
+| `1.34.x`           | :white_check_mark: | No known issues |
+| `1.35.x`           | :white_check_mark: | No known issues |
+| `1.36.x`           | :white_check_mark: | No known issues |
 
 Check the [compatibility matrix][compatibility-matrix] for additional information about previous releases of the modules.
 
 ## Usage
 
-### With SIGHUP Distribution
+**Utilities Module** is part of SIGHUP Distribution (SD). [`furyctl`][furyctl-repo] downloads and deploys its packages automatically when you create or update an OnPremises or Immutable cluster.
 
-From SD v1.36.0, on the OnPremises and Immutable kinds, [`furyctl`][furyctl-repo] downloads and deploys the packages of this module when you enable them in the configuration file, for example with `spec.distribution.modules.utilities.headlamp.type`. See the [SD documentation][kfd-docs] for the configuration fields.
+### Configuration
 
-### With kustomize
+You choose whether and how to deploy the web UI under `spec.distribution.modules.utilities.headlamp` in your `furyctl.yaml`: the `type` field selects how the users log in (`token-auth` or `sso`), or disables the UI with `none`. The UI is exposed at `dashboard.<baseDomain>`.
 
-You can also use the packages with `kustomize` on any Kubernetes cluster. Reference the package, or one of the examples, in your `kustomization.yaml`, and apply it:
+With `token-auth`, the users log in with their own Kubernetes token and get the permissions of that token. Set the optional `clusterRole` field to bind a ClusterRole to the `headlamp` ServiceAccount, so that its token can also be used to log in:
 
-```bash
-kustomize build examples/token-auth | kubectl apply -f -
+```yaml
+apiVersion: kfd.sighup.io/v1alpha2
+kind: OnPremises
+spec:
+  distribution:
+    modules:
+      utilities:
+        headlamp:
+          # How the users log in: none, token-auth or sso
+          type: token-auth
+          clusterRole: view
 ```
 
-### Headlamp image
+With `sso`, the UI is behind Pomerium and the users log in with SSO. The group in `oidcGroup` gets read access to the cluster. This type requires the SSO auth provider:
 
-The image of Headlamp with the SD plugins is `registry.sighup.io/fury/sd-ui`. Each module release pins a published build. To use a different build, override the `images:` transformer in your overlay:
-
-```bash
-kustomize edit set image registry.sighup.io/fury/sd-ui=registry.sighup.io/fury/sd-ui:<tag>
+```yaml
+apiVersion: kfd.sighup.io/v1alpha2
+kind: OnPremises
+spec:
+  distribution:
+    modules:
+      auth:
+        provider:
+          type: sso
+      utilities:
+        headlamp:
+          type: sso
+          oidcGroup: authors
 ```
+
+See the configuration reference for your cluster kind for the full list of available options: [OnPremises][schema-reference-onprem] or [Immutable][schema-reference-immutable].
+
+The [`examples/`](examples) directory shows how to deploy the web UI with `kustomize` on other clusters.
 
 To install SD from scratch, follow the [Getting started][getting-started] guide.
 
@@ -88,6 +96,8 @@ To install SD from scratch, follow the [Getting started][getting-started] guide.
 [furyctl-repo]: https://github.com/sighupio/furyctl
 [kfd-docs]: https://docs.sighup.io/docs/distribution/
 [headlamp-repo]: https://github.com/kubernetes-sigs/headlamp
+[schema-reference-onprem]: https://docs.sighup.io/docs/reference/onpremises#specdistributionmodulesutilities
+[schema-reference-immutable]: https://docs.sighup.io/docs/reference/immutable#specdistributionmodulesutilities
 [getting-started]: https://docs.sighup.io/docs/getting-started/
 [compatibility-matrix]: https://github.com/sighupio/module-utilities/blob/main/docs/COMPATIBILITY_MATRIX.md
 

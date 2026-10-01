@@ -6,23 +6,20 @@
 **SIGHUP Distribution build of Headlamp**: the upstream Headlamp server with the SD plugins
 (alerts, certificates, events, logs, backups, policy and more).
 
-This package does **not** choose an authentication model. It contains only the Namespace,
-the ServiceAccount, the Service and the Deployment. It does **not** contain an Ingress, a
-`ClusterRoleBinding` or any authentication. How the users reach the UI and log in is up to
-an overlay. The [`examples/`](../../examples) directory has three overlays:
+This package contains the Namespace, the ServiceAccount, the Service and the Deployment of
+Headlamp, and works with any authentication model. You choose how the users reach the UI and
+log in with an overlay. The [`examples/`](../../examples) directory has three ready to use
+overlays:
 
-- [`examples/token-auth`](../../examples/token-auth): a TLS Ingress and the Kubernetes token
-  login of Headlamp. A `ClusterRoleBinding` gives permissions to the Headlamp ServiceAccount,
-  so that its token can be used to log in.
-- [`examples/oidc-rbac`](../../examples/oidc-rbac): Headlamp behind Pomerium SSO. Each user
-  reaches the API server with their own identity, and RBAC bound to an OIDC group decides
-  what they can see.
-- [`examples/oidc-capsule`](../../examples/oidc-capsule): Headlamp behind Pomerium SSO, with
-  the requests sent through Capsule Proxy, so that each tenant sees only its own namespaces.
+| Overlay                                        | Entry point  | Identity seen by the API server         | SD `utilities.headlamp.type`     |
+| ---------------------------------------------- | ------------ | --------------------------------------- | -------------------------------- |
+| [token-auth](../../examples/token-auth)        | TLS Ingress  | The token supplied by the user          | `token-auth`                     |
+| [oidc-rbac](../../examples/oidc-rbac)          | Pomerium SSO | The end user, via OIDC group RBAC       | `sso`                            |
+| [oidc-capsule](../../examples/oidc-capsule)    | Pomerium SSO | The end user, filtered by Capsule Proxy | apply the example with kustomize |
 
-On SIGHUP Distribution (from v1.36.0, OnPremises and Immutable kinds), furyctl deploys this
-package for you with `spec.distribution.modules.utilities.headlamp.type` set to `token-auth`
-or `sso`. Each example README describes what the distribution does.
+From SD v1.36.0, on OnPremises and Immutable clusters, furyctl renders the `token-auth` and
+`sso` models from `spec.distribution.modules.utilities.headlamp`. Each example README
+describes the differences between the example and the version that the distribution renders.
 
 ## Requirements
 
@@ -50,17 +47,16 @@ The Deployment runs Headlamp with:
 ```
 
 Headlamp calls the in-cluster API server and sends it the bearer token of the user with
-every request. The users get the permissions of their own token. This package does **not**
-bind any RBAC to the Headlamp ServiceAccount: add the permissions that your access model
-needs in an overlay.
+every request, so the users get the permissions of their own token. Add the RBAC that your
+access model needs in an overlay, as the examples do.
 
 - Namespace: `headlamp`
 - Service: `ClusterIP` on port `80`, to the `http` port of the container (`4466`)
 
 ## Deployment
 
-You cannot use this package alone, because it has no Ingress. Apply one of the overlays
-from the root of the repository:
+Deploy the package through an overlay that adds the Ingress and the access model. To apply
+one of the examples, run from the root of the repository:
 
 ```shell
 kustomize build examples/token-auth | kubectl apply -f -
