@@ -6,8 +6,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# No top-level `namespace:` on purpose: the base stays in `headlamp` while the Ingress
-# below lives in `pomerium` (its namespace is set explicitly in ingress.yaml).
+# There is no `namespace:` field on purpose: the base resources stay in `headlamp`, and the
+# Ingress is in `pomerium` (ingress.yaml sets its namespace).
 resources:
   - ../../katalog/headlamp
   - ingress.yaml

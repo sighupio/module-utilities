@@ -2,11 +2,10 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# Grants the Headlamp ServiceAccount cluster access. In this "simple" mode Headlamp's backend
-# talks to the API server as this single identity, and access to the UI is gated by Headlamp's
-# own token login - a user must present a valid Kubernetes token (e.g. this ServiceAccount's)
-# to use it. Swap cluster-admin for a read-only ClusterRole (e.g. the built-in `view`) to
-# restrict what that token can do.
+# Gives permissions on the whole cluster to the Headlamp ServiceAccount. Headlamp sends the
+# token of the user to the API server, so this binding applies when a user logs in with the
+# token of this ServiceAccount. Replace cluster-admin with a read only ClusterRole (for
+# example the default `view`) to limit what that token can do.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

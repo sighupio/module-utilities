@@ -8,10 +8,6 @@ checks:
     - exposed-services
     - use-namespace
   exclude:
-    # The base package ships registry.sighup.io/fury/sd-ui:latest on purpose: the concrete
-    # tag is stamped by the distribution (or by an overlay's `images:` transformer) at
-    # deploy time, so the katalog itself has no version to pin.
-    - latest-tag
     - job-ttl-seconds-after-finished
     - no-read-only-root-fs
     - pdb-unhealthy-pod-eviction-policy

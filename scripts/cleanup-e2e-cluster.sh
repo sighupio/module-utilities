@@ -11,7 +11,7 @@ echo "==============================="
 # Configuration (same logic as creation script)
 KUBE_VERSION="${KUBE_VERSION:-1.33.0}"
 DRONE_BUILD_NUMBER="${DRONE_BUILD_NUMBER:-9999}"
-DRONE_REPO_NAME="${DRONE_REPO_NAME:-module-ui}"
+DRONE_REPO_NAME="${DRONE_REPO_NAME:-module-utilities}"
 CLUSTER_NAME="${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER}-${KUBE_VERSION}"
 KUBECONFIG_PATH="${KUBECONFIG:-$(pwd)/kubeconfig-e2e}"
 

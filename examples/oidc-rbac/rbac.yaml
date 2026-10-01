@@ -2,26 +2,26 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# RBAC for the "SSO + OIDC pass-through, NO Capsule" model (see README).
+# RBAC for the "SSO with OIDC token, without Capsule" model (see README).
 #
-# WHO is granted: a real OIDC group carried in the user's `groups` claim (from Dex). This
-# is NOT `capsule.clastix.io` - that group only exists when Capsule Proxy is in the path.
-# Replace `sd-ui-viewers` below with a group your Dex connector actually emits (e.g. an LDAP
-# group CN), then everyone in that group gets the access defined here when they log in via
-# Pomerium SSO.
+# WHO gets the permissions: a real OIDC group from the `groups` claim of the user (from Dex).
+# It is NOT `capsule.clastix.io`: that group exists only when Capsule Proxy is in the path.
+# Replace `sd-ui-viewers` below with a group that your Dex connector sends (for example an
+# LDAP group CN), with the groups prefix of the API server if there is one (for example
+# `oidc:`). Everybody in that group gets these permissions when they log in through Pomerium.
 #
-# WHAT is granted: cluster-wide READ. Without Capsule Proxy there is no per-namespace
-# filtering primitive in vanilla RBAC - a cluster-wide `list` either sees everything or is
-# denied. So this bundle is an OPS/SRE-scope grant: every bound user sees the whole cluster.
-# It is NOT multi-tenant isolation. For per-tenant isolation, use the oidc-capsule overlay.
+# WHAT they get: READ access to the whole cluster. Without Capsule Proxy, plain RBAC cannot
+# filter by namespace: a `list` on the whole cluster returns everything or is denied. So
+# every bound user sees the whole cluster. This is NOT tenant isolation. For tenant
+# isolation, use the oidc-capsule example.
 #
-# The verbs/resources mirror what the SD plugins actually call; the cluster-wide `list`
-# verbs are the only real addition over the Capsule variant (Capsule Proxy used to make
-# them unnecessary by transparently filtering).
+# The verbs and resources match the API calls of the SD plugins. Compared with the Capsule
+# example, the only additions are the `list` verbs on the whole cluster, because there is no
+# Capsule Proxy to filter the results.
 
 ---
-# General cluster-wide read for the plugins that do cluster-scoped `useList()`
-# (sd-core landing, sd-events, sd-logs, sd-policy).
+# Read access to the whole cluster, for the plugins that list cluster scoped resources
+# (sd-core landing page, sd-events, sd-logs, sd-policy).
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -78,9 +78,9 @@ roleRef:
   kind: ClusterRole
   name: sd-ui-reader
 ---
-# Service-proxy access to the observability backends (sd-logs, sd-certificates, sd-events).
-# services/proxy is never covered by the built-in `view` role and must be granted explicitly;
-# resourceNames must include the port-suffixed form.
+# services/proxy access to the observability backends (sd-logs, sd-certificates, sd-events).
+# The default `view` role does not include services/proxy, so this role grants it.
+# resourceNames must include both the plain name and the name with the port.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -110,8 +110,8 @@ roleRef:
   kind: ClusterRole
   name: sd-ui-service-proxy
 ---
-# sd-core reads distribution metadata from the furyctl secrets. `view` excludes secrets, so
-# this is a narrow, name-scoped Role rather than a blanket secrets grant.
+# sd-core reads the distribution data from the furyctl Secrets. `view` does not include
+# Secrets, so this Role grants `get` on these two Secrets only, by name.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

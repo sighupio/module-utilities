@@ -15,7 +15,7 @@
 
 <!-- <SD-DOCS> -->
 
-**Utilities Module** groups cross utility packages for [SIGHUP Distribution (SD)][kfd-repo] tools.
+**Utilities Module** is a core module of [SIGHUP Distribution (SD)][kfd-repo]. It groups general purpose tools that help you operate and use the cluster.
 
 If you are new to SD please refer to the [official documentation][kfd-docs] on how to get started with SD.
 
@@ -23,7 +23,7 @@ If you are new to SD please refer to the [official documentation][kfd-docs] on h
 
 **Utilities Module** has packages for general purposes. Each package is independent and can be enabled on its own.
 
-Today it ships the SD build of [Headlamp][headlamp-repo]: the upstream Headlamp server bundled with the SD plugins that surface functionality specific to the distribution (cluster overview, Prometheus alerts, certificate expiry, Kubernetes events, logs, Velero backups and policy violations). All its components are deployed in the `headlamp` namespace in the cluster.
+The first package is the SD build of [Headlamp][headlamp-repo]: the upstream Headlamp server with the SD plugins that show data specific to the distribution (cluster overview, Prometheus alerts, certificate expiry, Kubernetes events, logs, Velero backups and policy violations). All its components are deployed in the `headlamp` namespace.
 
 ## Packages
 
@@ -37,13 +37,15 @@ Click on each package to see its full documentation.
 
 ### Headlamp
 
-The `headlamp` package intentionally makes no assumption about authentication: it ships the Namespace, ServiceAccount, Service and Deployment only. How users reach and authenticate to the UI is an overlay concern, covered by the overlays already provided under [`examples/`](examples):
+The `headlamp` package contains the Namespace, the ServiceAccount, the Service and the Deployment, and works with any authentication model. You choose how the users reach the UI and log in with an overlay. The [`examples/`](examples) directory has three ready to use overlays:
 
-| Overlay                                          | Front door        | Identity seen by the API server         |
-| ------------------------------------------------ | ----------------- | --------------------------------------- |
-| [token-auth](examples/token-auth)                | Plain TLS ingress | The Headlamp ServiceAccount             |
-| [oidc-capsule](examples/oidc-capsule)            | Pomerium SSO      | The end user, filtered by Capsule Proxy |
-| [oidc-rbac](examples/oidc-rbac)                  | Pomerium SSO      | The end user, via OIDC group RBAC       |
+| Overlay                                          | Entry point       | Identity seen by the API server         | SD `utilities.headlamp.type`     |
+| ------------------------------------------------ | ----------------- | --------------------------------------- | -------------------------------- |
+| [token-auth](examples/token-auth)                | Plain TLS ingress | The token supplied by the user          | `token-auth`                     |
+| [oidc-capsule](examples/oidc-capsule)            | Pomerium SSO      | The end user, filtered by Capsule Proxy | apply the example with kustomize |
+| [oidc-rbac](examples/oidc-rbac)                  | Pomerium SSO      | The end user, via OIDC group RBAC       | `sso`                            |
+
+From SD v1.36.0, on OnPremises and Immutable clusters, furyctl renders the `token-auth` and `sso` models from `spec.distribution.modules.utilities.headlamp`. Each example README describes the differences between the example and the version that the distribution renders.
 
 ## Compatibility
 
@@ -58,11 +60,21 @@ Check the [compatibility matrix][compatibility-matrix] for additional informatio
 
 ## Usage
 
-**Utilities Module** is part of SIGHUP Distribution (SD) and is deployed automatically by [`furyctl`][furyctl-repo] when you create or update a cluster. You don't need to download, vendor or install its packages manually.
+### With SIGHUP Distribution
 
-### Image
+From SD v1.36.0, on the OnPremises and Immutable kinds, [`furyctl`][furyctl-repo] downloads and deploys the packages of this module when you enable them in the configuration file, for example with `spec.distribution.modules.utilities.headlamp.type`. See the [SD documentation][kfd-docs] for the configuration fields.
 
-The Headlamp + SD plugins image is `registry.sighup.io/fury/sd-ui`, built from the SD-UI source repository. Pin a specific build by overriding the `images:` transformer in `katalog/headlamp/kustomization.yaml` or in your own overlay:
+### With kustomize
+
+You can also use the packages with `kustomize` on any Kubernetes cluster. Reference the package, or one of the examples, in your `kustomization.yaml`, and apply it:
+
+```bash
+kustomize build examples/token-auth | kubectl apply -f -
+```
+
+### Headlamp image
+
+The image of Headlamp with the SD plugins is `registry.sighup.io/fury/sd-ui`. Each module release pins a published build. To use a different build, override the `images:` transformer in your overlay:
 
 ```bash
 kustomize edit set image registry.sighup.io/fury/sd-ui=registry.sighup.io/fury/sd-ui:<tag>

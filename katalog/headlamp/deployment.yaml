@@ -26,8 +26,8 @@ spec:
       securityContext: {}
       containers:
         - name: headlamp
-          # Satisfies the Kubernetes "restricted" Pod Security Standard / Kyverno
-          # restricted policies enforced on SD clusters.
+          # Compliant with the Kubernetes "restricted" Pod Security Standard and with the
+          # Kyverno restricted policies of SD clusters.
           securityContext:
             privileged: false
             allowPrivilegeEscalation: false
@@ -39,11 +39,11 @@ spec:
                 - ALL
             seccompProfile:
               type: RuntimeDefault
-          # Overridable via the `images:` transformer in kustomization.yaml.
+          # The `images:` transformer in kustomization.yaml overrides this value.
           image: registry.sighup.io/fury/sd-ui:v0.1.1
           imagePullPolicy: IfNotPresent
-          # Base form: Headlamp talks to the in-cluster API server using its own
-          # ServiceAccount token. Overlays patch this to front Capsule Proxy / add OIDC.
+          # Headlamp calls the in-cluster API server and sends it the bearer token of the
+          # user. The oidc-capsule example patches the Deployment to call Capsule Proxy.
           args:
             - "-in-cluster"
             - "-plugins-dir=/headlamp/plugins"

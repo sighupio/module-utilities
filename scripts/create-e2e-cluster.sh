@@ -5,13 +5,13 @@
 
 set -e
 
-echo "🚀 Creating E2E Test Cluster for Module UI"
-echo "=========================================="
+echo "🚀 Creating E2E Test Cluster for Utilities Module"
+echo "================================================="
 
 # Configuration (CI provides these, local uses defaults from mise.toml)
 KUBE_VERSION="${KUBE_VERSION:-1.33.0}"
 export DRONE_BUILD_NUMBER="${DRONE_BUILD_NUMBER:-9999}"
-export DRONE_REPO_NAME="${DRONE_REPO_NAME:-module-ui}"
+export DRONE_REPO_NAME="${DRONE_REPO_NAME:-module-utilities}"
 CLUSTER_NAME="${DRONE_REPO_NAME}-${DRONE_BUILD_NUMBER}-${KUBE_VERSION}"
 KUBECONFIG_PATH="${KUBECONFIG:-$(pwd)/kubeconfig-e2e}"
 
