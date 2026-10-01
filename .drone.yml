@@ -527,7 +527,7 @@ steps:
     depends_on:
       - clone
     commands:
-      - tar -zcvf module-utilities-${DRONE_TAG}.tar.gz katalog/ LICENSE README.md
+      - tar -zcvf module-utilities-${DRONE_TAG}.tar.gz katalog/ examples/ LICENSE README.md
     when:
       ref:
         include:

@@ -28,9 +28,12 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
 
-**Kubernetes (please complete the following information):**
- - Kubernetes version: [e.g. 1.33.0]
- - OPA Gatekeeper version: [e.g. 3.18.0]
+**Environment (please complete the following information):**
+ - Kubernetes version: [e.g. 1.36.4]
+ - Utilities Module version: [e.g. v0.1.1]
+ - Package: [e.g. headlamp]
+ - Installed with: [e.g. furyctl and SD v1.36.0, or kustomize]
+ - Example or overlay used, if any: [e.g. examples/oidc-rbac]
 
 **Additional context**
 Add any other context about the problem here.

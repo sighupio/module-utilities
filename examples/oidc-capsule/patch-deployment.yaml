@@ -2,10 +2,10 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# Points Headlamp at Capsule Proxy instead of the API server, and mounts a token+CA bundle
-# so it trusts Capsule Proxy's TLS. Pomerium (in front, via the Ingress) injects the user's
-# OIDC id_token as `Authorization: Bearer ...`; Headlamp forwards it unchanged to Capsule
-# Proxy, which filters every response by the user's Tenant.
+# Points Headlamp at Capsule Proxy instead of the API server, and mounts a token and a CA
+# bundle, so that Headlamp trusts the TLS certificate of Capsule Proxy. Pomerium, in front of
+# Headlamp, adds the OIDC id_token of the user as `Authorization: Bearer ...`. Headlamp sends
+# it unchanged to Capsule Proxy, which filters every response by the Tenant of the user.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,7 +35,7 @@ spec:
               - serviceAccountToken:
                   expirationSeconds: 86400
                   path: token
-              # Capsule Proxy CA + dev CA. Created by `mise run sync-capsule-ca`.
+              # Capsule Proxy CA. You create this Secret, see prerequisite 5 in the README.
               - secret:
                   name: headlamp-ca-bundle
                   items:

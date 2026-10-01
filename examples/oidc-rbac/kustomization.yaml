@@ -6,15 +6,15 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# No top-level `namespace:` on purpose: the base stays in `headlamp` while the Ingress
-# below lives in `pomerium` (its namespace is set explicitly in ingress.yaml), and the
-# RBAC objects are cluster-scoped / target kube-system.
+# There is no `namespace:` field on purpose: the base resources stay in `headlamp`, the
+# Ingress is in `pomerium` (ingress.yaml sets its namespace), and the RBAC resources are
+# cluster scoped or in kube-system.
 #
 # Unlike `oidc-capsule`, there is NO patch-deployment.yaml: the base Deployment already
-# runs `-in-cluster` against the real API server (kubernetes.default.svc), which is exactly
-# what this mode needs. Pomerium (in front, via the Ingress) injects the user's OIDC
-# id_token as `Authorization: Bearer ...`; Headlamp forwards it unchanged to the API
-# server, which validates it (see README) and applies plain RBAC per user/group.
+# runs `-in-cluster` against the real API server (kubernetes.default.svc), and this is what
+# this model needs. Pomerium, in front of Headlamp, adds the OIDC id_token of the user as
+# `Authorization: Bearer ...`. Headlamp sends it unchanged to the API server, which
+# validates it (see README) and applies plain RBAC to the user and the groups.
 resources:
   - ../../katalog/headlamp
   - ingress.yaml

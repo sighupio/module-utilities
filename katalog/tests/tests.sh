@@ -7,15 +7,15 @@
 
 # Headlamp katalog test suite.
 #
-# Render checks are always run (deterministic, no cluster needed).
-# Deploy/functional checks need a cluster with the SD-UI image available and an NGINX
-# ingress controller; they self-skip when prerequisites are missing.
+# The render checks always run and do not need a cluster.
+# The deploy checks need a cluster that can pull the sd-ui image. The live check also needs
+# an NGINX ingress controller. The checks are skipped when their requirements are missing.
 #
-# Env knobs:
-#   HEADLAMP_IMAGE   override the image before deploying (e.g. a locally-loaded build)
-#   HEADLAMP_HOST    routable host for the token-auth ingress; enables the live reachability
-#                    assertion (e.g. headlamp.<NIP_DOMAIN>)
-#   LOCAL_DEV_ENV    when set, the cleanup test tears the overlays down again
+# Environment variables:
+#   HEADLAMP_IMAGE   image to deploy instead of the default (for example a build loaded in kind)
+#   HEADLAMP_HOST    host for the token-auth Ingress that the test can reach. It enables the
+#                    live check (for example headlamp.<NIP_DOMAIN>)
+#   LOCAL_DEV_ENV    when set, the cleanup test deletes the overlays
 
 load helper
 
@@ -43,8 +43,8 @@ set -o pipefail
 
 @test "apply: token-auth overlay" {
   info
-  # The committed overlay uses a placeholder host and the published image. For a live run,
-  # HEADLAMP_HOST swaps in a routable host and HEADLAMP_IMAGE a locally-loaded build.
+  # The overlay uses a placeholder host and the published image. For a live run,
+  # HEADLAMP_HOST sets a host that the test can reach and HEADLAMP_IMAGE sets a local build.
   rendered=$(build "${REPO_ROOT}/examples/token-auth")
   if [ -n "${HEADLAMP_HOST}" ]; then
     rendered=$(echo "$rendered" | sed "s/headlamp.example.com/${HEADLAMP_HOST}/g")

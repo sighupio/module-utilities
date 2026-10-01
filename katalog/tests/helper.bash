@@ -54,7 +54,7 @@ check_deploy_ready() {
   [ "$replicas" == "$ready_replicas" ] && [ "$replicas" -gt 0 ]
 }
 
-# HTTP status code for a request (insecure TLS), optionally with basic-auth creds in $2.
+# HTTP status code of a request (TLS not verified), with optional basic auth credentials in $2.
 http_status() {
   local url=$1
   local creds=${2:-}

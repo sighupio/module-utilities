@@ -2,16 +2,16 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# Plain TLS ingress routed straight to the Headlamp Service. There is no ingress-level auth -
-# access to the UI is gated by Headlamp's own Kubernetes token login (see README).
+# TLS Ingress that sends the requests to the Headlamp Service. There is no authentication
+# on the Ingress: the Kubernetes token login of Headlamp protects the UI (see README).
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: headlamp
   namespace: headlamp
   annotations:
-    # TLS issuer - `kind-ca` matches the SD dev environment; change for production.
-    cert-manager.io/cluster-issuer: kind-ca
+    # Placeholder: set the name of your cert-manager ClusterIssuer.
+    cert-manager.io/cluster-issuer: example-issuer
 spec:
   ingressClassName: nginx
   rules:

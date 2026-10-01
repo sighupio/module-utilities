@@ -3,22 +3,23 @@
 <!-- <SD-DOCS> -->
 
 [Headlamp](https://headlamp.dev) is a web UI for Kubernetes. This package deploys the
-**SIGHUP Distribution build of Headlamp** - the upstream Headlamp server bundled with the
-SD plugins (alerts, certificates, events, logs, backups, policy, …) - into an SD cluster.
+**SIGHUP Distribution build of Headlamp**: the upstream Headlamp server with the SD plugins
+(alerts, certificates, events, logs, backups, policy and more).
 
-This `katalog/headlamp` package is intentionally **auth-agnostic**: it ships only the
-Namespace, ServiceAccount, Service and Deployment. It deliberately does **not** include an
-Ingress, a `ClusterRoleBinding`, or any front-door authentication. How users reach and
-authenticate to the UI is an overlay concern - see the ready-made overlays under
-[`examples/`](../../examples):
+This package contains the Namespace, the ServiceAccount, the Service and the Deployment of
+Headlamp, and works with any authentication model. You choose how the users reach the UI and
+log in with an overlay. The [`examples/`](../../examples) directory has three ready to use
+overlays:
 
-- [`examples/token-auth`](../../examples/token-auth) - a `ClusterRoleBinding` granting the
-  Headlamp ServiceAccount cluster access, over a plain TLS ingress. Headlamp talks directly
-  to the API server as a single identity; access is gated by Headlamp's own Kubernetes token
-  login.
-- [`examples/oidc-capsule`](../../examples/oidc-capsule) - Headlamp behind Pomerium SSO,
-  with requests proxied to Capsule Proxy for per-tenant filtering (the pattern used by the
-  SD dev environment).
+| Overlay                                        | Entry point  | Identity seen by the API server         | SD `utilities.headlamp.type`     |
+| ---------------------------------------------- | ------------ | --------------------------------------- | -------------------------------- |
+| [token-auth](../../examples/token-auth)        | TLS Ingress  | The token supplied by the user          | `token-auth`                     |
+| [oidc-rbac](../../examples/oidc-rbac)          | Pomerium SSO | The end user, via OIDC group RBAC       | `sso`                            |
+| [oidc-capsule](../../examples/oidc-capsule)    | Pomerium SSO | The end user, filtered by Capsule Proxy | apply the example with kustomize |
+
+From SD v1.36.0, on OnPremises and Immutable clusters, furyctl renders the `token-auth` and
+`sso` models from `spec.distribution.modules.utilities.headlamp`. Each example README
+describes the differences between the example and the version that the distribution renders.
 
 ## Requirements
 
@@ -27,12 +28,10 @@ authenticate to the UI is an overlay concern - see the ready-made overlays under
 
 ## Image repository and tag
 
-- Headlamp + SD plugins image: `registry.sighup.io/fury/sd-ui`
-- Built from the SD-UI source repository's `Dockerfile` (Headlamp base image + pre-built
-  plugin `dist/main.js` bundles): https://github.com/sighupio/new-sd-ui
+- Headlamp and SD plugins image: `registry.sighup.io/fury/sd-ui`
 
 Each module release pins a published build (see [MAINTENANCE.md](MAINTENANCE.md)). To use a
-different build, override the `images:` transformer in your overlay, or:
+different build, override the `images:` transformer in your overlay, or run:
 
 ```shell
 kustomize edit set image registry.sighup.io/fury/sd-ui=registry.sighup.io/fury/sd-ui:<tag>
@@ -40,32 +39,34 @@ kustomize edit set image registry.sighup.io/fury/sd-ui=registry.sighup.io/fury/s
 
 ## Configuration
 
-The base Deployment runs Headlamp with:
+The Deployment runs Headlamp with:
 
-```
+```text
 -in-cluster
 -plugins-dir=/headlamp/plugins
 ```
 
-so it authenticates to the in-cluster API server with its own ServiceAccount token. The
-ServiceAccount has **no** RBAC bound by this package - grant access in an overlay (e.g. a
-`ClusterRoleBinding`) appropriate to your access model.
+Headlamp calls the in-cluster API server and sends it the bearer token of the user with
+every request, so the users get the permissions of their own token. Add the RBAC that your
+access model needs in an overlay, as the examples do.
 
 - Namespace: `headlamp`
-- Service: `ClusterIP` on port `80`, targeting the container's `http` port (`4466`)
+- Service: `ClusterIP` on port `80`, to the `http` port of the container (`4466`)
 
 ## Deployment
 
-This package is not meant to be applied directly (it has no front door). Apply one of the
-overlays instead:
+Deploy the package through an overlay that adds the Ingress and the access model. To apply
+one of the examples, run from the root of the repository:
 
 ```shell
 kustomize build examples/token-auth | kubectl apply -f -
 # or
+kustomize build examples/oidc-rbac | kubectl apply -f -
+# or
 kustomize build examples/oidc-capsule | kubectl apply -f -
 ```
 
-To render just the base:
+To render only the base package:
 
 ```shell
 kustomize build katalog/headlamp
@@ -75,4 +76,4 @@ kustomize build katalog/headlamp
 
 ## License
 
-This package is governed by a BSD-style license - see the repository for details.
+This package is governed by a BSD-style license. See the [LICENSE](../../LICENSE) file.
