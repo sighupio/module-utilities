@@ -14,11 +14,8 @@ image, update the image tag (see below), and update the version labels above.
 
 ## Updating the image tag
 
-The `sd-ui` tag is in two places, and they must match:
-
-1. The `image:` field in `deployment.yaml`.
-2. The `images:` transformer in `kustomization.yaml`. This is the value that ends up in the
-   rendered manifests, because it overrides the tag in `deployment.yaml`:
+The `sd-ui` tag is set only in the `images:` transformer of `kustomization.yaml`. The
+`image:` field in `deployment.yaml` has no tag:
 
 ```yaml
 images:
@@ -30,8 +27,7 @@ images:
 
 - [ ] Base image tag updated in the `Dockerfile` of the SD UI source repository
 - [ ] `sd-ui` image built and pushed
-- [ ] `image:` tag updated in `deployment.yaml`
-- [ ] `newTag` of the `images:` transformer in `kustomization.yaml` set to the same tag
+- [ ] `newTag` of the `images:` transformer in `kustomization.yaml` updated
 - [ ] `app.kubernetes.io/version` labels updated
 - [ ] `mise run validate-manifests` passes (all the examples render)
 - [ ] `katalog/tests/tests.sh` passes

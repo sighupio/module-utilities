@@ -39,8 +39,8 @@ spec:
                 - ALL
             seccompProfile:
               type: RuntimeDefault
-          # The `images:` transformer in kustomization.yaml overrides this value.
-          image: registry.sighup.io/fury/sd-ui:v1.0.0
+          # The tag comes from the `images:` transformer in kustomization.yaml.
+          image: registry.sighup.io/fury/sd-ui
           imagePullPolicy: IfNotPresent
           # Headlamp calls the in-cluster API server and sends it the bearer token of the
           # user. The oidc-capsule example patches the Deployment to call Capsule Proxy.
