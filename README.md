@@ -9,7 +9,7 @@
 </h1>
 <!-- markdownlint-enable MD033 -->
 
-![Release](https://img.shields.io/badge/Latest%20Release-v0.1.1-blue)
+![Release](https://img.shields.io/github/v/release/sighupio/module-utilities?label=Latest%20Release)
 ![License](https://img.shields.io/github/license/sighupio/module-utilities?label=License)
 ![Slack](https://img.shields.io/badge/slack-@kubernetes/fury-yellow.svg?logo=slack&label=Slack)
 
@@ -42,7 +42,7 @@ Click on each package to see its full documentation.
 | `1.35.x`           | :white_check_mark: | No known issues |
 | `1.36.x`           | :white_check_mark: | No known issues |
 
-Check the [compatibility matrix][compatibility-matrix] for additional information about previous releases of the modules.
+Check the [compatibility matrix][compatibility-matrix] for the Kubernetes versions supported by each module release.
 
 ## Usage
 
