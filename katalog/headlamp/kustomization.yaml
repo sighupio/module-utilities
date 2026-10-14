@@ -22,7 +22,7 @@ labels:
 # To use another build, override newName and newTag in an overlay or run `kustomize edit set image`.
 images:
   - name: registry.sighup.io/fury/sd-ui
-    newTag: v0.1.1
+    newTag: v1.0.0
 
 resources:
   - namespace.yaml
