@@ -30,7 +30,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
  - Kubernetes version: [e.g. 1.36.4]
- - Utilities Module version: [e.g. v0.1.1]
+ - Utilities Module version: [e.g. v1.0.0]
  - Package: [e.g. headlamp]
  - Installed with: [e.g. furyctl and SD v1.36.0, or kustomize]
  - Example or overlay used, if any: [e.g. examples/oidc-rbac]
