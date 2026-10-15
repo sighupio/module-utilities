@@ -18,7 +18,7 @@ labels:
     includeSelectors: false
 
 # The SD Headlamp image: upstream Headlamp with the SD plugins.
-# Pinned to a published build: keep newTag equal to the image tag in deployment.yaml.
+# Pinned to a published build: this is the only place that sets the tag.
 # To use another build, override newName and newTag in an overlay or run `kustomize edit set image`.
 images:
   - name: registry.sighup.io/fury/sd-ui
